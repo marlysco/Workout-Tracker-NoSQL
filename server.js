@@ -1,26 +1,27 @@
 const express = require("express");
 const mongoose = require("mongoose");
 
-const app = express();
 const PORT = process.env.PORT || 3005;
 
-app.use(express.static("public"));
+const app = express();
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+app.use(express.static("public"));
 
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/budget", {
+  useNewUrlParser: true,
+  useFindAndModify: false
+});
+
+// routes
 // require("./routes/apiRoutes")(app);
-// require("./routes/htmlRoutes")(app);
+require("./routes/htmlRoutes")(app);
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workoutTracker", {
-  useNewUrlParser: true
+app.listen(PORT, () => {
+  console.log(`App running on port ${PORT}!`);
 });
-
-app.listen(PORT, function() {
-  console.log(`Now listening on port: ${PORT}`);
-});
-
-
 
 
 
