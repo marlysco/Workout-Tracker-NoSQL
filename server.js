@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 
-const PORT = process.env.PORT || 3005;
+const PORT = process.env.PORT || 3007;
 
 const app = express();
 
@@ -19,7 +19,7 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workout",
     useFindAndModify: false
   });
 
-// routes
+// Statics and API routes
 require("./routes/apiRoutes")(app);
 require("./routes/htmlRoutes")(app);
 

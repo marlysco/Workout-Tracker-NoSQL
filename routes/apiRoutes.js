@@ -1,68 +1,70 @@
-// const db = require("../models");
-
-// require("mongoose");
-
-// module.exports = (app) => {
-// //Get all the workouts
-//     app.get("api/workouts", async (req, res) => {
-//         try {
-//          const workoutData= await db.Workout.find({});
-//          res.jason(workoutData);
-//         } catch(error) {
-//             console.log(error)
-//             res.sendStatus(500)
-//         }
-//         });
-// //Add exercise
-//  app.post("/api/workouts", (req, res) => {
-//       db.Workout.create({}).
-//       then(data => res.json(data))
-//       .catch(err => {
-
-//         console.log("error", err);
-
-//         res.json(err);
-
-//       });
-//  })
-
-
-// };
-
 const db = require("../models");
-
 require("mongoose");
 
+module.exports= function (app) {
+//Getting all the workouts
+app.get("/api/workouts", async (req, res) => {
+    try {
+        const workouts = await Workout.aggregate([
+        {
+          $addFields: {
+            "totalDuration.totalDuration": {
+              $sum: "$exercises.duration"
+            }
+          }
+        }]);
+  
+      if (!workouts.length) {
+        res.status(404).json({message: "No workouts were found"});
+      } else {
+        res.status(200).json(workoutsData);
+      }
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
 
+//Creating New Workout
+app.post("/api/workouts", async (req, res) => {
+    try {
+      const workouts = await Workout.create(req.body);
+      res.status(200).json(workouts);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
 
+//Adding an excercise 
+app.put("/api/workouts/:id", async (req, res) => {
+    try {
+      const workouts = await Workout.findByIdAndUpdate({_id: req.params.id}, {$push: {exercises: req.body}});
+      console.log(workouts);
+      res.status(200).json(req.body);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
 
-module.exports = (app) => {
-
-
-    //Create a Workout
-    app.post("/api/workouts", (req, res) => {
-        db.Workout.create({})
-        .then(data => res.json(data))
-        .catch(err => {
-            console.log(err);
-            res.sendStatus(500);
-          });
-    });
-
-    //Add Exercise
-    app.put("/api/workouts/:id", (req, res) => {
-       db.Workout.findByIdAndUpdate(req.params.id, {$push: {exercises: req.body}},
-            {new: true, runValidators: true})   
-        .then(data => res.json(data))
-        .catch(err => {
-            console.log(err);
-            res.sendStatus(500);
-          });
-
-    });
-
-
-
-
-
-};
+//Getting the stats
+app.get("/api/workouts/range", async (req, res) => {
+    try {
+      const workouts = await Workout.aggregate([{$sort: {day: -1}},
+      {$limit: 7},
+      {
+        $addFields: {
+          "totalDuration.totalDuration": {
+            $sum: "$exercises.duration"
+          }
+        }
+      }]);
+      const workoutsToShow = workouts.reverse();
+      if (!workoutsToShow.length) {
+        res.status(404).json({message: "No workouts were found"});
+      } else {
+        res.status(200).json(workoutsToShow);
+      }
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
+}
