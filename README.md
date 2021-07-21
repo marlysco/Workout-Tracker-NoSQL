@@ -12,6 +12,7 @@
 
  ## Installation
  You can access to the live application using the following link:
+ https://murmuring-bastion-79600.herokuapp.com/
 
  ## Usage
  As a user, you will be able to view create and track daily workouts. Also you will be able to log multiple exercises in a workout on a given day; and to track the name, type, weight, sets, reps, and duration of exercise. If the exercise is a cardio exercise, you shuold be able to track my distance traveled.
